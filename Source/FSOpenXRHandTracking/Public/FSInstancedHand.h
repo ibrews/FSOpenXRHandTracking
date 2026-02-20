@@ -6,6 +6,7 @@
 #include "HeadMountedDisplayTypes.h"
 #include "InputAction.h"
 #include "Components/InstancedStaticMeshComponent.h"
+#include "OpenXR.h"
 #include "FSInstancedHand.generated.h"
 
 UENUM(BlueprintType)
