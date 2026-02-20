@@ -1,0 +1,52 @@
+# Blueprint Template – BP_HandGestures (Pure Blueprint, no C++)
+
+## Overview
+This Blueprint implements two hand‑gesture detections using the **XRHandComponent** that ships with the built‑in OpenXR plugin:
+* **Pinch** – thumb tip close to index tip (distance < 2 cm).
+* **Open Palm** – all five finger tips are *far* from their corresponding metacarpal bases (distance > 5 cm).
+
+You can drop the Blueprint onto any **Pawn/Character** that already has an **XRHandComponent** (or you can add one inside the Blueprint).
+
+---
+### Blueprint Setup (step‑by‑step)
+1. **Create Blueprint Class** → *Actor* → name **BP_HandGestures**.
+2. **Add Components**:
+   * `XRHandComponent` → rename to **HandComp**.
+3. **Variables** (Public so other Blueprints can read):
+   * `bIsPinching` – Boolean, default **false**.
+   * `bIsOpenPalm` – Boolean, default **false**.
+4. **Event Graph**:
+   * **Event Tick** → **Sequence** (two pins).
+
+   **Pin 1 – Pinch detection**:
+   - `GetJointTransform` (HandComp, **HandThumbTip**) → **Break Transform** → **Location** → **Vector A**.
+   - `GetJointTransform` (HandComp, **HandIndexTip**) → **Break Transform** → **Location** → **Vector B**.
+   - **Vector – Vector** (A‑B) → **Vector Length** → **Float <= 2.0** (adjust threshold per device).
+   - **Branch** (condition = result). True → **Set bIsPinching = true**, False → **Set bIsPinching = false**.
+
+   **Pin 2 – Open‑Palm detection**:
+   - For each finger (Thumb, Index, Middle, Ring, Pinky) do:
+     * `GetJointTransform` (FingerTip) → **Break → Location** → **Vector Tip**.
+     * `GetJointTransform` (FingerMetacarpal) → **Break → Location** → **Vector Base**.
+     * **Vector – Vector** → **Vector Length** → **Float >= 5.0** (open threshold).
+   - Feed all five Bool results into an **AND** node.
+   - **Branch** → **Set bIsOpenPalm** accordingly.
+
+5. **Expose** the two variables (eye icon) so other Blueprints can *Get* them.
+6. **Optional**: Add **Custom Events** `OnPinchStart`, `OnPinchEnd`, `OnOpenPalmEnter`, `OnOpenPalmExit` that fire when the boolean flips (use a **Previous Value** stored in a hidden variable to detect changes).
+
+---
+### How to use
+* In your VR pawn Blueprint, add **BP_HandGestures** as a child actor (or directly copy its graph into the pawn).
+* Then simply **Get bIsPinching**/**bIsOpenPalm** and drive actions – e.g., grab an object when `bIsPinching` becomes true, show a UI when `bIsOpenPalm` is true.
+
+---
+### Notes & Tips
+* Thresholds (2 cm pinch, 5 cm open) are good starting points for Quest 2/Meta Meta 2. Tweak them in the Blueprint constants for your device.
+* The **XRHandComponent** updates every frame; no extra “Enable Tracking” step required beyond turning on *OpenXR Hand Tracking* in project settings.
+* If you prefer the FSOpenXRHandTracking plugin’s built‑in `IsPinching` function, you can replace the distance check with a **Call Function** node `IsPinching (ThumbIndex)` and feed the result directly into `bIsPinching`.
+
+---
+**File location:** `/Users/agilelens/.openclaw/workspace/HandGestures/BP_HandGestures.txt`
+
+You can copy the text into a new Blueprint using the **Import From Text** feature (right‑click in the Content Browser → *Import to /Game…* → select the .txt). The node layout will be recreated automatically.

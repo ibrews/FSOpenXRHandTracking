@@ -1,0 +1,18 @@
+# Tiny Wrapper Blueprint (BP_FSOXRHandWrapper)
+
+**Purpose**: Expose the FSOpenXRHandTracking plugin’s pinch detection as a simple Blueprint that can be dropped onto any Actor/Pawn.
+
+**Steps to create in the UE Editor**
+1. In the Content Browser, right‑click → *Blueprint Class* → *Actor* → name it **BP_FSOXRHandWrapper**.
+2. Open the Blueprint and add a **FSOpenXRHandTrackingComponent** (found under *Add Component* → *FSOpenXR Hand Tracking* – the plugin adds this component).
+3. In the Event Graph add the following nodes:
+   - **Event Tick** → **Get IsPinching** (node provided by the plugin, pin = `EFSOpenXRPinchFingers::ThumbIndex`). Connect to a **Set** Boolean variable **bIsPinching**.
+   - **Event Tick** → **IsPinching** for each finger if you want more granularity (optional).
+   - **Event Tick** → **IsOpenPalm** (custom logic described below) → **Set** Boolean variable **bIsOpenPalm**.
+4. **Expose** the two Boolean variables (`bIsPinching`, `bIsOpenPalm`) as *Public* (click the eye icon) so other Blueprints can read them.
+5. Compile & Save.
+
+**Result**: Drop **BP_FSOXRHandWrapper** into your VR pawn; other Blueprints can simply **Get bIsPinching** or **bIsOpenPalm** and react (grab objects, UI interaction, etc.).
+
+---
+*Note*: The plugin already offers `IsPinching(Finger)` – the wrapper just calls it for the common thumb‑index pinch and provides a ready‑made *Open Palm* check (see BP_HandGestures template).
