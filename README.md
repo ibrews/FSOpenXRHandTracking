@@ -77,6 +77,14 @@ You can setup a hand ray (for instance a scaled cylinder and a `UWidgetInteracti
 | `HandPointerLocationSpeed` | Ray movement speed | `8.0f` |
 | `HandPointerRotationSpeed` | Ray rotation speed | `2.0f` |
 
+## Things to Try
+
+1. **Add a `UFSInstancedHand` component to your Pawn's VROrigin, set `bLeftHand = false`, and run on a Quest 3** — a hand mesh renders immediately with the default Both mode (instanced meshes + wireframe) with no material assignment required.
+2. **Set `HandRendering` to `EFSOpenXRHandRendering::Wireframe`** in the component's Details panel — the hand switches to wireframe-only rendering in a single edit, no code change needed.
+3. **Bring your index finger and thumb within the default `PinchThreshold` of 1.5** — the `OnPinch` delegate fires; bind a Blueprint event to it and you should see a print string appear on pinch.
+4. **Enable the MetaXR plugin and call `GetDataFromSkeleton` before `UpdateHand`** — hand tracking data that was previously invalid (Meta plugin overrides OpenXR data) now resolves correctly and the hand mesh tracks again.
+5. **Enable Hand Ray support in the component settings** — a ray extends from the index finger and integrates with the standard UE5 `UMotionControllerComponent` interaction system; point at a Widget to verify hit-testing works.
+
 ## What's planned
 - Basic Gesture detector
 - Enhanced Input System support for the gesture detector
